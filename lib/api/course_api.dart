@@ -1,21 +1,25 @@
+///
+/// [Author] Alex (https://github.com/AlexVincent525)
+/// [Date] 2020-02-13 23:47
+///
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
 import 'package:openjmu_courses_web/constants/constants.dart';
 
-final _random = math.Random();
-
-int next(int min, int max) => min + _random.nextInt(max - min);
-
 class CourseAPI {
   const CourseAPI._();
 
+  static final _random = math.Random();
+
+  static int _next(int min, int max) => min + _random.nextInt(max - min);
+
   static Set<CourseColor> coursesUniqueColor = {};
 
-  static Future getCourse() async => NetUtils.fetch(FetchType.get, uri: API.courseBySid);
+  static Future<Response> getCourse() async => NetUtils.fetch(FetchType.get, uri: API.courseBySid);
 
-  static Future getRemark() async => NetUtils.fetch(FetchType.get, uri: API.classRemark);
+  static Future<Response> getRemark() async => NetUtils.fetch(FetchType.get, uri: API.classRemark);
 
   static String getCourseTime(int courseIndex) {
     final time = courseTime[courseIndex][0];
@@ -24,7 +28,7 @@ class CourseAPI {
     return '$hour:$minute';
   }
 
-  static Future setCustomCourse(Map<String, dynamic> course) async => NetUtils.fetch(
+  static Future<Response> setCustomCourse(Map<String, dynamic> course) async => NetUtils.fetch(
         FetchType.post,
         uri: API.customCourseSave,
         body: course,
@@ -116,5 +120,5 @@ class CourseAPI {
     Color(0xff3275a9),
   ];
 
-  static Color randomCourseColor() => courseColorsList[next(0, courseColorsList.length)];
+  static Color randomCourseColor() => courseColorsList[_next(0, courseColorsList.length)];
 }

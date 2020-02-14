@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import 'package:openjmu_courses_web/constants/constants.dart';
+import 'package:openjmu_courses_web/pages/course_schedule_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key key}) : super(key: key);
@@ -15,33 +16,53 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  bool firstFramed = false;
+
   @override
   void initState() {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      navigate();
+      setState(() {
+        firstFramed = true;
+      });
+
+      initProviders();
+
+      Instances.eventBus.on<CoursesLoadedEvent>().listen((event) {
+        navigatorState.pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => CourseSchedulePage(key: Instances.courseSchedulePageStateKey),
+          ),
+          (route) => true,
+        );
+      });
     });
   }
 
-  void navigate() {
-//    NetUtils.fetch(FetchType.get, uri: API.courseBySid);
+  void initProviders() {
+    Provider.of<CoursesProvider>(currentContext, listen: false).initCourses();
+    Provider.of<DateProvider>(currentContext, listen: false).initCurrentWeek();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Course Schedule Web')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Selector<DateProvider, DateTime>(
-              selector: (_, provider) => provider.startDate,
-              builder: (_, startDate, __) {
-                return Text('Start date: $startDate');
-              },
-            ),
-          ],
+    return AnimatedOpacity(
+      duration: 500.milliseconds,
+      opacity: firstFramed ? 1.0 : 0.0,
+      child: Scaffold(
+        appBar: AppBar(title: Text('Course Schedule Web')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Selector<DateProvider, DateTime>(
+                selector: (_, provider) => provider.startDate,
+                builder: (_, startDate, __) {
+                  return Text('Start date: $startDate');
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

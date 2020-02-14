@@ -106,16 +106,10 @@ class CoursesProvider extends ChangeNotifier {
     return courses;
   }
 
-  Future updateCourses() async {
+  Future updateCourses({bool refresh = false}) async {
     final dateProvider = Provider.of<DateProvider>(currentContext, listen: false);
-//    if (dateProvider.currentWeek != null) {
-//      Instances.courseSchedulePageStateKey.currentState?.scrollToWeek(dateProvider.currentWeek);
-//    }
-    if (showWeek) {
-      showWeek = false;
-//      if (Instances.appsPageStateKey.currentState?.mounted ?? false) {
-//        Instances.appsPageStateKey.currentState?.setState(() {});
-//      }
+    if (dateProvider.currentWeek != null) {
+      Instances.courseSchedulePageStateKey.currentState?.scrollToWeek(dateProvider.currentWeek);
     }
     try {
       final responses = await Future.wait(<Future>[CourseAPI.getCourse(), CourseAPI.getRemark()]);
@@ -125,10 +119,10 @@ class CoursesProvider extends ChangeNotifier {
         if (dateProvider.currentWeek != null) _firstLoaded = true;
       }
       if (_showError) _showError = false;
-//      Instances.courseSchedulePageStateKey.currentState?.updateScrollController();
+      Instances.courseSchedulePageStateKey.currentState?.updateScrollController();
       notifyListeners();
-
-//      Instances.courseSchedulePageStateKey.currentState?.setState(() {});
+      if (!refresh) Instances.eventBus.fire(CoursesLoadedEvent());
+      if (refresh) Instances.courseSchedulePageStateKey.currentState?.setState(() {});
     } catch (e) {
       debugPrint('Error when updating course: $e');
       if (!firstLoaded && dateProvider.currentWeek != null) _firstLoaded = true;
@@ -137,8 +131,8 @@ class CoursesProvider extends ChangeNotifier {
     }
   }
 
-  Future courseResponseHandler(response) async {
-    final data = jsonDecode(response.data);
+  Future courseResponseHandler(Response response) async {
+    final data = jsonDecode(response.body);
     final _courseList = data['courses'];
     final _customCourseList = data['othCase'];
     Map<int, Map> _s;
@@ -162,7 +156,7 @@ class CoursesProvider extends ChangeNotifier {
   }
 
   Future remarkResponseHandler(response) async {
-    final data = jsonDecode(response.data);
+    final data = jsonDecode(response.body);
     String _r;
     if (data != null) _r = data['classScheduleRemark'];
     if (_remark != _r && _r != '' && _r != null) {

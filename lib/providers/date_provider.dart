@@ -3,7 +3,7 @@
 /// [Date] 2019-12-18 16:52
 ///
 import 'dart:async';
-//import 'dart:convert';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
@@ -47,9 +47,8 @@ class DateProvider extends ChangeNotifier {
     final now = DateTime.now();
     try {
       DateTime _day;
-//      final result =
-//          jsonDecode((await NetUtils.fetch(FetchType.get, uri: API.firstDayOfTerm)).body)['start'];
-      final result = Constants.startDate;
+      final result =
+          jsonDecode((await NetUtils.fetch(FetchType.get, uri: API.firstDayOfTerm)).body)['start'];
       _day = DateTime.parse(result);
       if (_startDate == null) {
         updateStartDate(_day);
@@ -63,9 +62,9 @@ class DateProvider extends ChangeNotifier {
       final _w = -(_difference / 7).floor();
       if (_currentWeek != _w && _w <= 20) {
         _currentWeek = _w;
-        notifyListeners();
       }
       _fetchCurrentWeekTimer?.cancel();
+      notifyListeners();
     } catch (e) {
       debugPrint('Failed when fetching current week: $e');
       startFetchCurrentWeekTimer();

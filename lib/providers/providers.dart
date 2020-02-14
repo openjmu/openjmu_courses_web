@@ -11,17 +11,16 @@ import 'package:openjmu_courses_web/constants/constants.dart';
 export 'package:provider/provider.dart';
 export 'courses_provider.dart';
 export 'date_provider.dart';
+export 'themes_provider.dart';
 
 ChangeNotifierProvider<T> buildProvider<T extends ChangeNotifier>(T value) {
   return ChangeNotifierProvider<T>.value(value: value);
 }
 
-List<SingleChildWidget> get providers => _providers;
 List<SingleChildWidget> get builtProviders => _builtProviders;
 
-final _providers = <SingleChildWidget>[
-  buildProvider<DateProvider>(DateProvider()..initCurrentWeek()),
-];
 final _builtProviders = <SingleChildWidget>[
-  buildProvider<CoursesProvider>(CoursesProvider()..initCourses()),
+  buildProvider<CoursesProvider>(CoursesProvider()),
+  buildProvider<DateProvider>(DateProvider()),
+  buildProvider<ThemesProvider>(ThemesProvider()),
 ];
